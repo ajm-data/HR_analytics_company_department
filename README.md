@@ -8,22 +8,22 @@ The HR team requires 2 separate analytical views to be created using a single SQ
 # [Dashboard Data Components](https://github.com/ajm-data/HR_analytics_company_department/blob/main/aggregated_dashboard_views.pgsql)
 
 
-### Company Level Insights [Link text Here](https://github.com/ajm-data/HR_analytics_company_department/blob/main/aggregated_dashboard_views.pgsql)
+### [Company Level Insights](https://github.com/ajm-data/HR_analytics_company_department/blob/main/dashboard_data_components/company_level_insights.json)
 
 
-    Total number of employees
+    Total number of employees 
     Average company tenure in years
     Gender ratios
     Average payrise percentage and amount
 
-### Department Level Insights
+### [Department Level Insights](https://github.com/ajm-data/HR_analytics_company_department/blob/main/dashboard_data_components/department_level_insights.json)
 
     Number of employees in each department
     Current department manager tenure in years
     Gender ratios
     Average payrise percentage and amount
 
-### Title Level Insights
+### [Title Level Insights](https://github.com/ajm-data/HR_analytics_company_department/blob/main/dashboard_data_components/title_level_insights.json)
 
     Number of employees with each title
     Minimum, average, standard deviation of salaries
