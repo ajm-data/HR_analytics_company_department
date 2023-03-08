@@ -32,16 +32,3 @@ GROUP BY churn.department, churn.gender;
 
 SELECT * FROM mv_employees.current_employee_snapshot-- current employee materialized view;
 
-/*
--- need to get age from birth_date
-SELECT * FROM mv_employees.employee
-LIMIT 10;
-
--- AGE OF employees
-Select first_name, last_name, birth_date, EXTRACT(year FROM AGE(current_date, birth_date)) AS age
-from mv_employees.employee
-ORDER BY age;
-
-SELECT * 
-FROM mv_employees.current_employee_snapshot;
-*/
