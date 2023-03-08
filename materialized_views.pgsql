@@ -1,3 +1,9 @@
+/*-----------------------------------
+    ##### ##### ##### ##### #####
+ ##### Materialized Views #####
+  ##### ##### ##### ##### #####
+-------------------------------------*/
+-- also fix date data issues, where each date needs to be 18 years earlier (add 18 years)
 DROP SCHEMA IF EXISTS mv_employees CASCADE;
 CREATE SCHEMA mv_employees;
 
@@ -19,8 +25,7 @@ SELECT
     END AS to_date
 FROM employees.department_employee;
 
-SELECT * FROM mv_employees.employee
-LIMIT 10;
+
 -- department manager
 DROP MATERIALIZED VIEW IF EXISTS mv_employees.department_manager;
 CREATE MATERIALIZED VIEW mv_employees.department_manager AS
@@ -74,7 +79,8 @@ SELECT
     END AS to_date
 FROM employees.title;
 
--- Index Creation
+
+-- Index Creation (used for faster queries when building current and historic employee snapshot data)
 CREATE UNIQUE INDEX ON mv_employees.employee USING btree (id);
 CREATE UNIQUE INDEX ON mv_employees.department_employee USING btree (employee_id, department_id);
 CREATE INDEX        ON mv_employees.department_employee USING btree (department_id);
@@ -84,4 +90,3 @@ CREATE UNIQUE INDEX ON mv_employees.department_manager USING btree (employee_id,
 CREATE INDEX        ON mv_employees.department_manager USING btree (department_id);
 CREATE UNIQUE INDEX ON mv_employees.salary USING btree (employee_id, from_date);
 CREATE UNIQUE INDEX ON mv_employees.title USING btree (employee_id, title, from_date);
-

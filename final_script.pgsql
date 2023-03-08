@@ -1,7 +1,9 @@
-/*---------------------------------------------------
-1. Create materialized views to fix date data issues
-----------------------------------------------------*/
-
+/*-----------------------------------
+    ##### ##### ##### ##### #####
+ ##### Materialized Views #####
+  ##### ##### ##### ##### #####
+-------------------------------------*/
+-- also fix date data issues, where each date needs to be 18 years earlier (add 18 years)
 DROP SCHEMA IF EXISTS mv_employees CASCADE;
 CREATE SCHEMA mv_employees;
 
@@ -23,6 +25,7 @@ SELECT
     END AS to_date
 FROM employees.department_employee;
 
+
 -- department manager
 DROP MATERIALIZED VIEW IF EXISTS mv_employees.department_manager;
 CREATE MATERIALIZED VIEW mv_employees.department_manager AS
@@ -37,7 +40,7 @@ SELECT
 FROM employees.department_manager;
 
 -- employee
-DROP MATERIALIZED VIEW IF EXISTS mv_employees.employee;
+DROP MATERIALIZED VIEW IF EXISTS mv_employees.employee CASCADE;
 CREATE MATERIALIZED VIEW mv_employees.employee AS
 SELECT
   id,
@@ -48,6 +51,8 @@ SELECT
   (hire_date + interval '18 years')::DATE AS hire_date
 FROM employees.employee;
 
+SELECT * 
+FROM mv_employees.employee;
 -- salary
 DROP MATERIALIZED VIEW IF EXISTS mv_employees.salary;
 CREATE MATERIALIZED VIEW mv_employees.salary AS
@@ -74,8 +79,9 @@ SELECT
     END AS to_date
 FROM employees.title;
 
--- Index Creation (used for current and historic employee snapshot data)
-CREATE UNIQUE INDEX ON mv_employees.employee USING btree (id); 
+
+-- Index Creation (used for faster queries with current and historic employee snapshot data)
+CREATE UNIQUE INDEX ON mv_employees.employee USING btree (id);
 CREATE UNIQUE INDEX ON mv_employees.department_employee USING btree (employee_id, department_id);
 CREATE INDEX        ON mv_employees.department_employee USING btree (department_id);
 CREATE UNIQUE INDEX ON mv_employees.department USING btree (id);
@@ -85,16 +91,30 @@ CREATE INDEX        ON mv_employees.department_manager USING btree (department_i
 CREATE UNIQUE INDEX ON mv_employees.salary USING btree (employee_id, from_date);
 CREATE UNIQUE INDEX ON mv_employees.title USING btree (employee_id, title, from_date);
 
+/*-----------------------------------
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+-------------------------------------*/
 
 /*-----------------------------------
-2. Current employee snapshot view
+ ##### ##### ##### ##### #####
+ ##### Current Employee Snapshot #####
+  ##### ##### ##### ##### #####
 -------------------------------------*/
+
+-- Now includes birth_date for demographic data
 
 DROP VIEW IF EXISTS mv_employees.current_employee_snapshot;
 CREATE VIEW mv_employees.current_employee_snapshot AS
--- apply LAG to get previous salary amount for all employees
+-- LAG to get most recent previous salary amount for all employees
 WITH cte_previous_salary AS (
-  SELECT * FROM (
+  SELECT * FROM ( 
     SELECT
       employee_id,
       to_date,
@@ -102,11 +122,9 @@ WITH cte_previous_salary AS (
         PARTITION BY employee_id
         ORDER BY from_date
       ) AS amount
-    FROM mv_employees.salary
-  ) all_salaries
-  -- keep only latest valid previous_salary records only
-  -- must have this in subquery to account for execution order
-  WHERE to_date = '9999-01-01'
+    FROM mv_employees.salary -- mv of all employee salaries and salary changes
+  ) all_salaries  -- must have this in subquery to account for execution order
+  WHERE to_date = '9999-01-01' -- filters for current employees
 ),
 -- combine all elements into a joined CTE
 cte_joined_data AS (
@@ -115,12 +133,13 @@ cte_joined_data AS (
     -- include employee full name
     CONCAT_WS(' ', employee.first_name, employee.last_name) AS employee_name,
     employee.gender,
+    employee.birth_date,
     employee.hire_date,
-    title.title,
-    salary.amount AS salary,
+    title.title, --job title
+    salary.amount AS salary, --current salary
     cte_previous_salary.amount AS previous_salary,
     department.dept_name AS department,
-    -- include manager full name
+    --manager full name
     CONCAT_WS(' ', manager.first_name, manager.last_name) AS manager,
     -- need to keep the title and department from_date columns for tenure calcs
     title.from_date AS title_from_date,
@@ -135,7 +154,7 @@ cte_joined_data AS (
     ON employee.id = cte_previous_salary.employee_id
   INNER JOIN mv_employees.department_employee
     ON employee.id = department_employee.employee_id
-  -- NOTE: department is joined only to the department_employee table!
+  -- department is joined only to the department_employee table!
   INNER JOIN mv_employees.department
     ON department_employee.department_id = department.id
   -- add in the department_manager information onto the department table
@@ -151,10 +170,11 @@ cte_joined_data AS (
     -- add in department_manager to_date column filter
     AND department_manager.to_date = '9999-01-01'
 )
--- finally we can apply all our calculations in this final output
+-- apply all our calculations in this final output
 SELECT
   employee_id,
   employee_name,
+  birth_date,
   manager,
   gender,
   title,
@@ -175,15 +195,29 @@ SELECT
 FROM cte_joined_data;
 
 
-/*---------------------------
-3. Aggregated dashboard views
------------------------------*/
+/*-----------------------------------
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+-------------------------------------*/
 
--- company level aggregation view
+/*---------------------------
+######## ##### #############
+Aggregated dashboard views
+######## ##### #############
+-----------------------------*/
+/*-------------------------------------
+-- company level aggregation view gender
+-------------------------------------*/
 DROP VIEW IF EXISTS mv_employees.company_level_dashboard;
 CREATE VIEW mv_employees.company_level_dashboard AS
 SELECT
-  gender,
+  gender, -- grouped by gender
   COUNT(*) AS employee_count,
   ROUND(100 * COUNT(*)::NUMERIC / SUM(COUNT(*)) OVER ()) AS employee_percentage,
   ROUND(AVG(company_tenure_years)) AS company_tenure,
@@ -198,15 +232,18 @@ SELECT
     PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY salary)
   ) AS inter_quartile_range,
   ROUND(STDDEV(salary)) AS stddev_salary
-FROM mv_employees.current_employee_snapshot
+FROM mv_employees.current_employee_snapshot -- mv with current employees only
 GROUP BY gender;
 
+
+/*-----------------------------------
 -- department level aggregation view
+------------------------------------*/
 DROP VIEW IF EXISTS mv_employees.department_level_dashboard;
 CREATE VIEW mv_employees.department_level_dashboard AS
 SELECT
-  gender,
-  department,
+  gender, -- grouped by
+  department, -- grouped by
   COUNT(*) AS employee_count,
   ROUND(100 * COUNT(*)::NUMERIC / SUM(COUNT(*)) OVER (
     PARTITION BY department
@@ -226,13 +263,16 @@ SELECT
 FROM mv_employees.current_employee_snapshot
 GROUP BY
   gender, department;
+  
 
+/*-----------------------------------
 -- title level aggregation view
+------------------------------------*/
 DROP VIEW IF EXISTS mv_employees.title_level_dashboard;
 CREATE VIEW mv_employees.title_level_dashboard AS
 SELECT
-  gender,
-  title,
+  gender, --grouped by
+  title, -- grouped by
   COUNT(*) AS employee_count,
   ROUND(100 * COUNT(*)::NUMERIC / SUM(COUNT(*)) OVER (
     PARTITION BY title
@@ -254,20 +294,34 @@ GROUP BY
   gender, title;
 
 
+
+/*-----------------------------------
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+-------------------------------------*/
+
 /*-----------------------
-4. Salary Benchmark Views
+########################
+Salary Benchmark Views
+########################
 -------------------------*/
 
--- Note the slightly verbose column names - this helps us avoid renaming later!
-
+-- average salary grouped by average_tenure
 DROP VIEW IF EXISTS mv_employees.tenure_benchmark;
 CREATE VIEW mv_employees.tenure_benchmark AS
 SELECT
-  company_tenure_years,
+  company_tenure_years, --grouped by
   AVG(salary) AS tenure_benchmark_salary
 FROM mv_employees.current_employee_snapshot
 GROUP BY company_tenure_years;
 
+-- average salary grouped by gender
 DROP VIEW IF EXISTS mv_employees.gender_benchmark;
 CREATE VIEW mv_employees.gender_benchmark AS
 SELECT
@@ -276,6 +330,7 @@ SELECT
 FROM mv_employees.current_employee_snapshot
 GROUP BY gender;
 
+-- average salary grouped by department
 DROP VIEW IF EXISTS mv_employees.department_benchmark;
 CREATE VIEW mv_employees.department_benchmark AS
 SELECT
@@ -284,6 +339,7 @@ SELECT
 FROM mv_employees.current_employee_snapshot
 GROUP BY department;
 
+-- average salary grouped by job_title
 DROP VIEW IF EXISTS mv_employees.title_benchmark;
 CREATE VIEW mv_employees.title_benchmark AS
 SELECT
@@ -293,8 +349,22 @@ FROM mv_employees.current_employee_snapshot
 GROUP BY title;
 
 
+
+/*-----------------------------------
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+    ##### ##### ##### ##### ##### ##### ##### ##### ##### #####
+-------------------------------------*/
+
 /*----------------------------------
-5. Historic Employee Deep Dive View
+### ### ### ### ### ### ### ### ###
+Historic Employee Deep Dive View
+### ###### ### ### ### ### ### ### 
 -----------------------------------*/
 
 -- drop cascade required as there is 1 derived view!

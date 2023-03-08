@@ -1,13 +1,17 @@
+
 /*-----------------------------------
-2. Current employee snapshot view
+ ##### ##### ##### ##### #####
+ ##### Current Employee Snapshot #####
+  ##### ##### ##### ##### #####
 -------------------------------------*/
--- Now has birth_date for in output
+
+-- Now includes birth_date for demographic data
 
 DROP VIEW IF EXISTS mv_employees.current_employee_snapshot;
 CREATE VIEW mv_employees.current_employee_snapshot AS
--- apply LAG to get previous salary amount for all employees
+-- LAG to get most recent previous salary amount for all employees
 WITH cte_previous_salary AS (
-  SELECT * FROM (
+  SELECT * FROM ( 
     SELECT
       employee_id,
       to_date,
@@ -15,11 +19,9 @@ WITH cte_previous_salary AS (
         PARTITION BY employee_id
         ORDER BY from_date
       ) AS amount
-    FROM mv_employees.salary
-  ) all_salaries
-  -- keep only latest valid previous_salary records only
-  -- must have this in subquery to account for execution order
-  WHERE to_date = '9999-01-01'
+    FROM mv_employees.salary -- mv of all employee salaries and salary changes
+  ) all_salaries  -- must have this in subquery to account for execution order
+  WHERE to_date = '9999-01-01' -- filters for current employees
 ),
 -- combine all elements into a joined CTE
 cte_joined_data AS (
@@ -30,11 +32,11 @@ cte_joined_data AS (
     employee.gender,
     employee.birth_date,
     employee.hire_date,
-    title.title,
-    salary.amount AS salary,
+    title.title, --job title
+    salary.amount AS salary, --current salary
     cte_previous_salary.amount AS previous_salary,
     department.dept_name AS department,
-    -- include manager full name
+    --manager full name
     CONCAT_WS(' ', manager.first_name, manager.last_name) AS manager,
     -- need to keep the title and department from_date columns for tenure calcs
     title.from_date AS title_from_date,
@@ -49,7 +51,7 @@ cte_joined_data AS (
     ON employee.id = cte_previous_salary.employee_id
   INNER JOIN mv_employees.department_employee
     ON employee.id = department_employee.employee_id
-  -- NOTE: department is joined only to the department_employee table!
+  -- department is joined only to the department_employee table!
   INNER JOIN mv_employees.department
     ON department_employee.department_id = department.id
   -- add in the department_manager information onto the department table
@@ -65,7 +67,7 @@ cte_joined_data AS (
     -- add in department_manager to_date column filter
     AND department_manager.to_date = '9999-01-01'
 )
--- finally we can apply all our calculations in this final output
+-- apply all our calculations in this final output
 SELECT
   employee_id,
   employee_name,
@@ -88,3 +90,4 @@ SELECT
   DATE_PART('year', now()) -
     DATE_PART('year', department_from_date) AS department_tenure_years
 FROM cte_joined_data;
+
