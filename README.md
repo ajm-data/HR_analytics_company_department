@@ -33,7 +33,7 @@ The HR team requires 2 separate analytical views to be created using a single SQ
 
 ### Individual Employee Deep Dive
 
-    See all the various employment history ordered by effective date including salary, department, manager and title changes
-    Calculate previous historic payrise percentages and value changes
-    Calculate the previous position and department history in months with start and end dates
-    Compare an employee’s current salary, total company tenure, department, position and gender to the average benchmarks for their current position
+    - Show employment history ordered by date including salary, department, manager and title changes
+    - Calculate previous historic payrise percentages and value changes
+    - Calculate the previous position and department history in months with start and end dates
+    - Compare an employee’s current salary, total company tenure, department, position and gender to the average benchmarks for their current position
