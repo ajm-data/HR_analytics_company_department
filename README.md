@@ -3,11 +3,13 @@ Assist HR to construct datasets to answer basic reporting questions and also fee
 
 The HR team requires 2 separate analytical views to be created using a single SQL script for two separate data assets that can be used for reporting purposes.
 
-## The following data requirements are as follows:
+### The following data requirements are as follows:
 
-## Dashboard Data Components
+# Dashboard Data Components [Dashboard Data Components](https://github.com/ajm-data/HR_analytics_company_department/blob/main/aggregated_dashboard_views.pgsql)
 
-### Company Level Insights
+
+### Company Level Insights [Link text Here](https://github.com/ajm-data/HR_analytics_company_department/blob/main/aggregated_dashboard_views.pgsql)
+
 
     Total number of employees
     Average company tenure in years
@@ -29,7 +31,7 @@ The HR team requires 2 separate analytical views to be created using a single SQ
     Gender ratios
     Average payrise percentage and amount
 
-## Deep Dive Data Components
+# Deep Dive Data Components
 
 ### Individual Employee Deep Dive
 
@@ -37,3 +39,4 @@ The HR team requires 2 separate analytical views to be created using a single SQ
     - Calculate previous historic payrise percentages and value changes
     - Calculate the previous position and department history in months with start and end dates
     - Compare an employee’s current salary, total company tenure, department, position and gender to the average benchmarks for their current position
+
