@@ -5,7 +5,7 @@ The HR team requires 2 separate analytical views to be created using a single SQ
 
 ### The following data requirements are as follows:
 
-# Dashboard Data Components [Dashboard Data Components](https://github.com/ajm-data/HR_analytics_company_department/blob/main/aggregated_dashboard_views.pgsql)
+# [Dashboard Data Components](https://github.com/ajm-data/HR_analytics_company_department/blob/main/aggregated_dashboard_views.pgsql)
 
 
 ### Company Level Insights [Link text Here](https://github.com/ajm-data/HR_analytics_company_department/blob/main/aggregated_dashboard_views.pgsql)
