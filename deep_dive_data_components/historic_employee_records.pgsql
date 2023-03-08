@@ -245,3 +245,7 @@ CREATE VIEW mv_employees.employee_deep_dive AS
 SELECT *
 FROM mv_employees.historic_employee_records
 WHERE event_order <= 5;
+
+-- Output for current and historic employee deep dive
+SELECT *
+FROM mv_employees.employee_deep_dive;

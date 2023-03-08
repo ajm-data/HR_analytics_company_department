@@ -91,5 +91,7 @@ SELECT
     DATE_PART('year', department_from_date) AS department_tenure_years
 FROM cte_joined_data;
 
+
+-- Output for current employee data
 SELECT * 
 FROM mv_employees.current_employee_snapshot;
