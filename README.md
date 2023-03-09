@@ -44,23 +44,38 @@ The HR team requires 2 separate analytical views to be created using a single SQ
     Compare an employee’s current salary, total company tenure, department, position and gender to the average benchmarks for their current position4
 
 
-# Ad-Hoc Data Analysis
+# [Ad-Hoc Data Analysis](https://github.com/ajm-data/HR_analytics_company_department/tree/main/ad-hoc_analysis)
 
 ### Current Employee Analysis
     
     What is the full name of the employee with the highest salary?
+        - 'Tokuyasu Pesch' : $158,220
+        
     How many current employees have the equal longest time in their current positions?
+        - 3505 employees have held their title for 20 years
+    
     Which department has the least number of current employees?
+        - Finance dept has 12,437 employees
     What is the largest difference between minimimum and maximum salary values for all current employees?
+        - $119,597
     How many male employees are above the average salary value for the Production department?
+        - 14,999 men in 'Production' make more than average 'Production' salary
     Which title has the highest average salary for male employees?
+        - Senior Staff (title): highest avg male salary at $80,735
+
     Which department has the highest average salary for female employees?
-    Which department has the most female employees?
+        - Sales: average salary for Female employees $88,835
+
+    Which department has the least amount of female employees?
+        - Finance has the least female employees (5,014)
+
     What is the gender ratio in the department which has the highest average male salary and what is the average male salary value for that department?
+        - Female 14,999: Male 22,702 & Male avg_salary = $88,864
+    
     HR Analytica want to change the average salary increase percentage value to 2 decimal places - what will the new value be for males for the company level dashboard?
+        - Updated, male average salary (rounded 2 decimal places) = 3.02
 
-
-### Employee Churn
+### [Employee Churn](https://github.com/ajm-data/HR_analytics_company_department/blob/main/ad-hoc_analysis/churn_analysis.pgsql)
 
     
     How many employees have left the company?
