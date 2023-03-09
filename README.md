@@ -44,3 +44,45 @@ The HR team requires 2 separate analytical views to be created using a single SQ
     Compare an employee’s current salary, total company tenure, department, position and gender to the average benchmarks for their current position4
 
 
+# Ad-Hoc Data Analysis
+
+### Current Employee Analysis
+    
+    What is the full name of the employee with the highest salary?
+    How many current employees have the equal longest time in their current positions?
+    Which department has the least number of current employees?
+    What is the largest difference between minimimum and maximum salary values for all current employees?
+    How many male employees are above the average salary value for the Production department?
+    Which title has the highest average salary for male employees?
+    Which department has the highest average salary for female employees?
+    Which department has the most female employees?
+    What is the gender ratio in the department which has the highest average male salary and what is the average male salary value for that department?
+    HR Analytica want to change the average salary increase percentage value to 2 decimal places - what will the new value be for males for the company level dashboard?
+
+
+### Employee Churn
+
+    
+    How many employees have left the company?
+    What percentage of churn employees were male?
+    Which title had the most churn?
+    Which department had the most churn?
+    Which year had the most churn?
+    What was the average salary for each employee who has left the company?
+    What was the median total company tenure for each churn employee just bfore they left?
+    On average, how many different titles did each churn employee hold?
+    What was the average last pay increase for churn employees?
+    What proportion of churn employees had a pay decrease event in their last 5 events?
+    How many current employees have the equal longest overall time in their current positions (not in years)?
+
+
+### Management Analysis
+
+    
+    How many managers are there currently in the company?
+    How many employees have ever been a manager?
+    On average - how long did it take for an employee to first become a manager from their the date they were originally hired?
+    What was the most common titles that managers had just before before they became a manager?
+    On average - how much more do current managers make on average compared to all other employees?
+
+
