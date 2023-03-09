@@ -111,13 +111,25 @@ The HR team requires 2 separate analytical views to be created using a single SQ
         - 24% of churned employees had a pay decrease
 
 
-### Management Analysis
+### [Management Analysis](https://github.com/ajm-data/HR_analytics_company_department/blob/main/ad-hoc_analysis/management_analysis.pgsql)
 
     
     How many managers are there currently in the company?
+        - 9 current managers
+
     How many employees have ever been a manager?
+        - 24 employees have held the title 'Manager'
+
     On average - how long did it take for an employee to first become a manager from their the date they were originally hired?
+        - Average of only 909 days for an employee to be promoted to manager
+
     What was the most common titles that managers had just before before they became a manager?
+        - Senior staff was the most commonly held title prior to management promotion
+
+    How many managers were first hired by the company as a manager?
+        - 9 employees have been hired as managers
+        
     On average - how much more do current managers make on average compared to all other employees?
+        - $5,711
 
 

@@ -1,3 +1,12 @@
+-------Column names-------
+SELECT *
+FROM information_schema.columns
+WHERE
+  table_schema = 'mv_employees'
+  AND table_name = 'current_employee_snapshot';
+-----------------------------------------------
+
+
 -- What is the full name of the employee with the highest salary?
 SELECT 
   employee_name,
